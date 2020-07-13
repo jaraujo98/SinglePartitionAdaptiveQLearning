@@ -35,6 +35,9 @@ from spaql_experiment import start
 
 from plot_rl_experiment import plot_rl_exp
 
+# For the statistical power analysis
+from test_RL_difference import welch_test
+
 def load_data(log_dir):
     """
     Reads the agentData.pk file in folder log_dir.
@@ -46,7 +49,7 @@ def load_data(log_dir):
 
     Returns
     -------
-    None.
+    The data in the agentData.pk file.
 
     """
     with open(f"{log_dir}/agentData.pk", 'rb') as f:
@@ -346,6 +349,18 @@ Press Enter to continue...""")
                 problem_fig.tight_layout()
                 problem_fig.savefig(f"{figures_dir}/{name}{lam}.png", dpi=300, transparent=True)
                 plt.close(problem_fig)
+
+            """
+            Welch test
+            """
+            
+            print("Applying the Welch test on the Oil problem...")
+            
+            data1 = np.abs(rewards_mp[-1,:])
+            data2 = np.abs(rewards_sp[-1,:])
+                
+            # Significance level to be used = 0.05
+            welch_test(data1, data2, 0.05, tail=2)
             
             with plt.style.context(plt_style):
                 ax = axs[i,j]
@@ -796,6 +811,18 @@ Press Enter to continue...""")
                 problem_fig.tight_layout()
                 problem_fig.savefig(f"{figures_dir}/{name}{c}.png", dpi=300, transparent=True)
                 plt.close(problem_fig)
+                
+            """
+            Welch test
+            """
+            
+            print("Applying the Welch test on the Ambulance problem...")
+            
+            data1 = np.abs(rewards_mp[-1,:])
+            data2 = np.abs(rewards_sp[-1,:])
+                
+            # Significance level to be used = 0.05
+            welch_test(data1, data2, 0.05, tail=2)
             
             with plt.style.context(plt_style):
                 ax = axs[i,j]
