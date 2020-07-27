@@ -715,7 +715,7 @@ Press Enter to continue...""")
     opt_sp_scaling_cartpole = 20.0
     opt_spts_scaling_cartpole = 20.0
     
-    train_iter = 2#2000  # number of training iterations
+    train_iter = 2000  # number of training iterations
     
     log_dir = root_log_dir + "/pendulum"
     if not os.path.exists(log_dir):

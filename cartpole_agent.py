@@ -113,7 +113,8 @@ class CartPoleNode(Node):
         return self.children
 
 class MultiPartitionCartPole(MultiPartitionAgent):
-    def __init__(self, epLen, numIters, scaling, video=False):
+    def __init__(self, epLen, numIters, scaling, video=False,
+                 state_val=np.array([0, 0, 0, 0]), action_val=[0, 1]):
         super(MultiPartitionCartPole, self).__init__( epLen, numIters, scaling, video)
         
         self.tree_list = []
@@ -122,8 +123,8 @@ class MultiPartitionCartPole(MultiPartitionAgent):
                                  nodeClassArgs={'qVal': epLen,
                                                'num_visits': 0,
                                                'num_splits': 0,
-                                               'state_val': np.array([0, 0, 0, 0]),
-                                               'action_val': [0, 1],
+                                               'state_val': state_val,
+                                               'action_val': action_val,
                                                'radius': 1})
             self.tree_list.append(tree)
             
@@ -150,7 +151,7 @@ class MultiPartitionCartPole(MultiPartitionAgent):
         return action
         
 class CartPoleRandomAgent(agent.FiniteHorizonAgent):
-    def __init__(self, epLen, numIters):
+    def __init__(self, epLen, numIters, action_val=[0, 1]):
         '''
         args:
             epLen - number of steps per episode
@@ -160,6 +161,7 @@ class CartPoleRandomAgent(agent.FiniteHorizonAgent):
         '''
         self.epLen = epLen
         self.numIters = numIters
+        self.action_val = action_val
 
     def reset(self):
         pass
@@ -179,19 +181,20 @@ class CartPoleRandomAgent(agent.FiniteHorizonAgent):
         pass
 
     def pick_action(self, state, timestep):
-        action = np.random.choice([0, 1])
+        action = np.random.choice(self.action_val)
         return action
 
 class CartPoleAgent(SinglePartitionSoftmaxControlAgent):
     def __init__(self, epLen=200, numIters=500, scaling=0.5,
+                 state_val=np.array([0, 0, 0, 0]), action_val=[0, 1],
                  terminal_state=np.array([0, 0, 0, 0]), lam=np.inf, exponent=2):
         super(CartPoleAgent, self).__init__(epLen, numIters, scaling, terminal_state, lam)
         self.tree = CartPoleTree(epLen=epLen, nodeClass=CartPoleNode,
                                  nodeClassArgs={'qVal': epLen,
                                                'num_visits': 0,
                                                'num_splits': 0,
-                                               'state_val': np.array([0, 0, 0, 0]),
-                                               'action_val': [0, 1],
+                                               'state_val': state_val,
+                                               'action_val': action_val,
                                                'radius': 1})
         self.tree_list = [self.tree]
         
@@ -199,7 +202,7 @@ class CartPoleAgent(SinglePartitionSoftmaxControlAgent):
         
     def pair_within_node(self, state, action, node):
         # We are only concerned with the state, as the action is categorical
-        d = max(np.abs(state - node.state_val)) # But we still need to check this is the noe played
+        d = max(np.abs(state - node.state_val)) # But we still need to check this is the node played
         return d <= node.radius and action in node.action_val
     
     def update_obs(self, obs, action, reward, newObs, timestep):
